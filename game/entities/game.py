@@ -5,8 +5,10 @@ class Game(object):
     hash = None
     # players - tuple of user hashes. The position of the hash describes which Snake the player controls.
     players = None
-    # the game result iff determinated
-    result = None
+    # strategy object determinating result of the game
+    result_strategy = None
+    turn_limit = None
+
 
     def __init__(self, hash, players, state=None):
         """
@@ -14,7 +16,7 @@ class Game(object):
             hash - hash PK.
             players - tuple of user hashes. The position of the hash describes
                 which Snake the player controls.
-            state - present state of the game. GameState instance.
+            state - current state of the game: a GameState instance.
         """
         self.hash = hash
         self.players = players
@@ -24,15 +26,16 @@ class Game(object):
     def turn(self):
         return self.state.turn if self.state else None
 
-    def execute_orders(self, orders):
+    def compute_orders(self, orders):
         """
         Params:
-            orders - a dict of {user_hash: SnakeCommand instance}
+            orders - a dict of {user_hash: Order instance}
         """
+        assert self.state, "Current state of the game hasn't been provided"
         # map orders from players to snakes
         mapped_orders = [orders[player] for player in players]
         # compute next state of the game
-        previous_state = self.state  # TODO needed?
+        self.previous_state = self.state  # TODO needed?
         self.state = self.state.compute_next(orders)
         # ... and check iff the result has come
         if self.state.result:
@@ -40,26 +43,45 @@ class Game(object):
 
 
 class GameState(object):
-    compound_key = ('game', 'turn')
-    turn = None
-    map = None
-    result = None
+    """
+    Describes the state of a given game in a particular turn.
 
-    def __init__(self, turn, map):
-        # the turn number
-        self.turn = turn
-        # a Map instsance
-        self.map = map
+    Immutable.
+
+    Pair of the (game, turn) values present a natural PK of
+    the GameState.
+    """
+
+    def __init__(self, game, turn, map):
+        """
+        Params:
+            game - a Game instsance which is owner of this GameState.
+            turn - turn number.
+            map - a Map instance.
+        """
+        super(GameState, self).__setattr__('game', game)
+        super(GameState, self).__setattr__('turn', turn)
+        super(GameState, self).__setattr__('map', map)
+
+    def __setattr__(self, *args):
+        raise TypeError("You try to change GameState, which is immutable")
+    __delattr__ = __setattr__
 
     def compute_next(self, orders):
         """
+        Computes next state of the game, using given orders.
+
         Params:
-            orders - a dict of {player_hash: SnakeCommand instance}
+            orders - a dict of {player_hash: Order instance}
         Returns:
             a new instance of GameState (not necessary valid) after executing
             the orders.
         """
         return GameState(game, turn+1, self.map.compute_orders(orders))
+
+    def get_result(self, result_policy):
+        """ My map declares if there is the result of the game """
+        return self.map.result
 
     def is_valid(self):
         """ GameState is valid iff map seems not to have conflicts. """
@@ -71,11 +93,6 @@ class GameState(object):
         Validates if the 'other' GameState is valid successor for this state.
         """
         # TODO
-
-    @property
-    def result(self):
-        """ My map declares if there is the result of the game """
-        return self.map.result
 
 
 class GameHistory(object):

@@ -2,24 +2,45 @@ from collections import deque, namedtuple, Sequence
 from enum import IntEnum, unique
 from itertools import combinations
 
-from .orders import SnakeCommand
+from .orders import Order
 
 
 @unique
 class Direction(IntEnum):
+    """
+    Enumeration type describing four directions of the world: north,
+    """
     north = '0'
     east = '1'
     south = '2'
     west = '3'
 
-    def turn(self, command):
-        command_to_turn = {
-            SnakeCommand.forward: 0,
-            SnakeCommand.none: 0,
-            SnakeCommand.right: 1,
-            SnakeCommand.left: -1
+    def turn(self, order):
+        """
+        This method lets you change the direction regarding the given order.
+
+        NOTE: No order at all (Order.NONE) is interpreted like
+              the Order.FORWARD!
+
+        Params:
+            order - commands in which direction you should turn.
+        Returns:
+            a new Direction you are facing after the turn.
+        """
+        order_to_turn = {
+            Order.forward: 0,
+            Order.none: 0,  # No order is interpreted like the Order.FORWARD!
+            Order.right: 1,
+            Order.left: -1
         }
-        return Direction((self + command_to_turn[command]) % 4)
+        return Direction((self + order_to_turn[order]) % 4)
+
+    def opposite(self):
+        """
+        Returns:
+            the opposite direction.
+        """
+        return Direction((self + 2) % 4)
 
 
 class Tile(namedtuple('Tile', ('x', 'y'))):
@@ -98,7 +119,7 @@ class Snake(deque):
     """
     Represents a snake: deque of tiles that he occupies. He constantly moves:
     ceaselessly pushes his head forward and you can only change his heading,
-    sending him a command. Normally, he draws his tail while pushing the head
+    sending him an order. Normally, he draws his tail while pushing the head
     forward... Unless it's the case that he has eaten a food, then he grows,
     i.e. pushes head forward but the tail stays at the same spot.
     """
@@ -126,8 +147,8 @@ class Snake(deque):
         """
         return self._heading
 
-    def move(self, command, foods=None):
-        self._heading = self._heading.turn(command)  # turn your head
+    def move(self, order, food=None):
+        self._heading = self._heading.turn(order)  # turn your head
         new_head = self.head.get_adjacent(self._heading)
         self.appendleft(new_head)  # move your head forward
         fed = new_head in foods  # do I reach the food?
@@ -173,12 +194,12 @@ class Map(object):
 
     def compute_orders(self, orders):
         """
-        Passes SnakeCommands on all snakes, even if it leads to an invalid map
-        state. This method assumes that you've passed SnakeCommand for all
-        snakes, even if it is SnakeCommand.none.
+        Passes Orders on all snakes, even if it leads to an invalid map
+        state. This method assumes that you've passed Order for all
+        snakes, even if it is Order.none.
 
         Params:
-            orders - orders per snake: a list of SnakeCommand instances
+            orders - orders per snake: a list of Order instances
         """
         snakes = [
             snake.move(order, self.food)
