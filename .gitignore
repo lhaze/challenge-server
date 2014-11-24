@@ -1,0 +1,16 @@
+# Python temp
+*.py[cod]
+
+# VMs
+.vagrant
+
+# IDEs
+*.swp
+*~
+*.ropeproject
+*.psproj
+.TAGS
+
+# DB
+*.db
+*.db-journal
