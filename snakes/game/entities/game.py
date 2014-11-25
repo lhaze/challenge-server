@@ -1,25 +1,18 @@
-
 class Game(object):
-    key = ('game_hash',)
-    # a hash that is the PK of the game
-    hash = None
-    # players - tuple of user hashes. The position of the hash describes which Snake the player controls.
-    players = None
-    # strategy object determinating result of the game
-    result_strategy = None
-    turn_limit = None
 
-
-    def __init__(self, hash, players, state=None):
+    def __init__(self, hash, players, policy, state=None):
         """
         Params:
-            hash - hash PK.
+            hash - hash. The natural PK.
             players - tuple of user hashes. The position of the hash describes
                 which Snake the player controls.
+            policy - a bunch of strategies determinating flow of the game:
+                a GamePolicy instance.
             state - current state of the game: a GameState instance.
         """
         self.hash = hash
         self.players = players
+        self.policy = policy
         self.state = state
 
     @property
