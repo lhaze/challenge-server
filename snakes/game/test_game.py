@@ -1,6 +1,6 @@
 import pytest
 
-from .entities import Direction, Order, Tile
+from .entities import Direction, Snake, Tile, Turn
 
 
 class TestTileDirection(object):
@@ -10,32 +10,32 @@ class TestTileDirection(object):
     non-obvious debugging.
     """
 
-    @pytest.mark.parametrize("direction, order, result", [
-        (Direction.north, Order.forward, Direction.north),
-        (Direction.north, Order.left, Direction.west),
-        (Direction.west, Order.right, Direction.north),
-        (Direction.south, Order.right, Direction.west),
-        (Direction.south, Order.left, Direction.east),
+    @pytest.mark.parametrize("direction, turn, result", [
+        (Direction.NORTH, Turn.FORWARD, Direction.NORTH),
+        (Direction.NORTH, Turn.LEFT, Direction.WEST),
+        (Direction.WEST, Turn.RIGHT, Direction.NORTH),
+        (Direction.SOUTH, Turn.RIGHT, Direction.WEST),
+        (Direction.SOUTH, Turn.LEFT, Direction.EAST),
     ])
-    def test_turning_direction(self, direction, order, result):
-        " Test of Orders which changes Direction in the right(sic!) way "
-        assert direction.turn(order) == result
+    def test_turning_direction(self, direction, turn, result):
+        " Test of orders which changes Direction in the right(sic!) way "
+        assert direction.make_turn(turn) == result
 
     @pytest.mark.parametrize("direction, result", [
-        (Direction.north, Direction.south),
-        (Direction.south, Direction.north),
-        (Direction.east, Direction.west),
-        (Direction.west, Direction.east)
+        (Direction.NORTH, Direction.SOUTH),
+        (Direction.SOUTH, Direction.NORTH),
+        (Direction.EAST, Direction.WEST),
+        (Direction.WEST, Direction.EAST)
     ])
     def test_opposite_direction(self, direction, result):
         " Test of opposite direction "
         assert direction.opposite() == result
 
     @pytest.mark.parametrize("tile, direction, result", [
-        (Tile(1, 1), Direction.north, Tile(1, 2)),
-        (Tile(1, 1), Direction.east, Tile(2, 1)),
-        (Tile(1, 1), Direction.south, Tile(1, 0)),
-        (Tile(1, 1), Direction.west, Tile(0, 1)),
+        (Tile(1, 1), Direction.NORTH, Tile(1, 2)),
+        (Tile(1, 1), Direction.EAST, Tile(2, 1)),
+        (Tile(1, 1), Direction.SOUTH, Tile(1, 0)),
+        (Tile(1, 1), Direction.WEST, Tile(0, 1)),
     ])
     def test_adjacent_tile(self, tile, direction, result):
         " Test of getting valid adjacent tiles "
@@ -43,7 +43,24 @@ class TestTileDirection(object):
 
     def test_tile2vector_bijection(self):
         " Test of Tile.VECTOR_2_DIRECTION/DIRECTION_2_VECTOR bijection "
-        V2D = Tile.VECTOR_2_DIRECTION
-        D2V = Tile.DIRECTION_2_VECTOR
+        V2D = Tile.VECTOR_2_DIRECTION_MAP
+        D2V = Tile.DIRECTION_2_VECTOR_MAP
         for vector in V2D.keys():
             assert vector == D2V[V2D[vector]]
+
+
+class TestSnake(object):
+    """
+    Tests assumptions about Snake objects.
+    """
+    @pytest.mark.parametrize("snake_repr", [
+        "5,5:N:FRLF",
+    ])
+    def test_hhot2snake(self, snake_repr):
+        assert snake_repr == Snake.from_hhot_form(snake_repr).to_hhot()
+
+    @pytest.mark.parametrize("snake, result", [
+        (Snake([(1, 1)]), True)
+    ])
+    def test_intersecting_snake(self, snake, result):
+        assert snake.is_non_intersecting == result
