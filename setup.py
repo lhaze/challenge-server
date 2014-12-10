@@ -7,11 +7,12 @@ if os.path.abspath(__file__).split(os.path.sep)[1] == 'vagrant':
     del os.link
 
 setup(
-    name='challange-server',
+    name='challenge-server',
     version = '0.1',
-    description='Server app for challange',
-    url='https://github.com/lhaze/challange-server',
+    description='Server app for challenge',
+    url='https://github.com/lhaze/challenge-server',
     author='lhaze',
     author_email='lhaze@lhaze.name',
-    package_dir = {'': 'challange'},
+    package_dir = {'': 'challenge'},
 )
+

@@ -1,5 +1,6 @@
 # Python temp
 *.py[cod]
+*.egg-info
 
 # project management
 .vagrant
