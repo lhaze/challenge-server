@@ -49,3 +49,7 @@ wsgiref==0.1.2
 zope.interface==4.0.5
 
 Bunch==1.0.1
+enum34
+tox
+ipdb
+git+git://github.com/mverteuil/pytest-ipdb.git

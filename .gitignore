@@ -1,8 +1,9 @@
 # Python temp
 *.py[cod]
 
-# VMs
+# project management
 .vagrant
+.tox
 
 # IDEs
 *.swp

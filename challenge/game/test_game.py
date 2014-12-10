@@ -53,14 +53,24 @@ class TestSnake(object):
     """
     Tests assumptions about Snake objects.
     """
+
     @pytest.mark.parametrize("snake_repr", [
         "5,5:N:FRLF",
+        "-1,-1:E:L",
+        "0,0:S:RR"
     ])
     def test_hhot2snake(self, snake_repr):
+        " Test of transforming HHOT form to Snake instance and back "
         assert snake_repr == Snake.from_hhot_form(snake_repr).to_hhot()
 
+    @pytest.mark.parametrize("snake", [])
+    def test_snake2hhot(self, snake):
+        " Test of transforming Snake instance to HHOT and back "
+        assert snake == Snake.from_hhot_form(snake.to_hhot_form())
+
     @pytest.mark.parametrize("snake, result", [
-        (Snake([(1, 1)]), True)
+        (Snake.from_hhot_form("1,1:S:RRR"), True)
     ])
     def test_intersecting_snake(self, snake, result):
+        " Test of intersecting snake validation "
         assert snake.is_non_intersecting == result

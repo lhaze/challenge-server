@@ -1,6 +1,6 @@
 from collections import deque, namedtuple, Sequence
 from enum import IntEnum, unique
-from itertools import combinations
+from itertools import izip, tee
 
 from .orders import Turn
 
@@ -182,8 +182,11 @@ class Snake(deque):
 
     def __init__(self, tiles):
         super(Snake, self).__init__(tiles)
-        self.heading = tiles[1].get_direction_to(tiles[0]) if len(tiles) > 1 \
-            else Direction.NORTH
+        if len(tiles) < 3:
+            raise ValueError((
+            "Snake should have at least 3 tiles. Input sequence {} has only {}"
+            " tiles").format(tiles, len(tiles)))
+        self.heading = tiles[1].get_direction_to(tiles[0])
 
     @classmethod
     def from_hhot_form(cls, snake_repr):
@@ -193,15 +196,19 @@ class Snake(deque):
         representation, snake is easy to move, rotate or reproduce his history
         of commands.
 
-        NOTE: Reversed sequence of opposited turns is just a history of snake
+        NOTE 1: Reversed sequence of opposited turns is just a history of snake
         turns (hence the 'opposite' concept in the name).
+
+        NOTE 2: Definition states there is at least one turn, so the snake
+        should have at least 3 tiles (head, heading-determined and
+        turn-determined).
 
         BNF of the HHOT form:
         <tile> ::= <number> "," <number>
         <head> ::= <tile>
         <heading> ::= "N" | "E" | "S" | "W"  # Direction.NORTH/EAST/SOUTH/WEST
         <turn> ::= "F" | "L" | "R"  # Turn.FORWARD/LEFT/RIGHT
-        <turn_sequence> ::= <turn> <turn_sequence>
+        <turn_sequence> ::= <turn> <turn_sequence> | <turn>
         <snake_repr> ::= <head> ":" <heading> ":" <turn_sequence>
         """
         head, heading_symbol, turn_sequence = snake_repr.split(':')
@@ -213,11 +220,7 @@ class Snake(deque):
             direction = direction.make_turn(turn)
             tile = tile.get_adjacent(direction)
             sequence.append(tile)
-        instance = cls(sequence)
-        '''assert instance.is_valid(), (
-            "Snake represented with '{}' string seems to be invalid. Check "
-            "his validation methods.").format(snake_repr)'''
-        return instance
+        return cls(sequence)
 
     def to_hhot_form(self):
         """
@@ -226,7 +229,7 @@ class Snake(deque):
         You can find a definition of it in docstring of from_hhot_form factory
         method.
         """
-        # TODO
+
         sequence = []
         return "{head}:{heading}:{turn_sequence}".format(
             head=self.head, heading=self.heading, turn_sequence=sequence)
@@ -263,16 +266,13 @@ class Snake(deque):
             self.is_consistent,
             self.has_valid_heading))
 
-    def get_adjacents_list(self):
+    def get_tiles_pairwise(self):
         """
-        Returns iterable which iterates by pairs of iterable
+        Returns iterable which iterates by pairs of Snake's tiles.
         """
-        rotated_self = deque(self)
-        rotated_self.rotate(1)
-        pairs = zip(self, rotated_self)
-        # first pair is unusable, because it consists head and rotated tail
-        del pairs[0]
-        return pairs
+        a, b = itertools.tee(iterable)
+        next(b, None)
+        return itertools.izip(a, b)
 
     @property
     def is_non_intersecting(self):
@@ -281,64 +281,14 @@ class Snake(deque):
 
     @property
     def is_consistent(self):
-        return all(x.is_adjacent(y) for x, y in self.get_adjacents_list())
+        """ True iff all Snake's tiles are adjacent to their neighbours """
+        return all(x.is_adjacent(y) for x, y in self.get_tiles_pairwise())
 
     @property
     def has_valid_heading(self):
         """
-        True iff I'm heading in the direction that my first two tiles define.
+        True iff Snake is heading in the direction that my first two tiles
+        define.
         """
-        return True
-
-
-class Map(object):
-    """
-    Represents game map: array of tiles with snakes and possible obstacles on
-    it. It encapsulates game logic related to the map.
-
-    Map is intended to be persisted as JSON to be stored in either in KV stores,
-    or in RDBMs.
-    """
-    snakes = None
-    food = None
-    walls = None
-
-    @classmethod
-    def from_json(self, json_repr):
-        """
-        Params:
-            json_repr - a string containing JSON serialization of the Map.
-        Returns:
-            a Map instance from serialized state.
-        """
-        pass
-
-    def __init__(self, state, policy):
-        self.fromJSON
-        self.food_generation_strategy = policy.food_generation
-
-    def compute_orders(self, orders):
-        """
-        Passes orders (Turn instances) on all snakes, even if it leads to
-        an invalid map state. This method assumes that you've passed order for
-        all snakes, even if it is None.
-
-        Params:
-            orders - orders per snake: a list of Turn instances
-        """
-        # TODO doesn't it need to be immutable? together with Snakes?
-        snakes = [
-            snake.move(order, self.food)
-            for snake, order in zip(self.snakes, orders)
-        ]
-        # remove a food iff needed
-        return Map(snakes, objects, food)
-
-    def is_valid(self):
-        """
-        True iff map is in a valid state, which means that all snakes are valid
-        and there's no clash between them, objects and walls.
-        """
-        snakes_are_valid = all(snake.is_valid() for snake in self.snakes)
-        clash = Snake.snake_clash(self.snakes)
-        return snakes_are_valid and not clash
+        direction = self[1].get_direction_to(self[0])
+        return direction == heading

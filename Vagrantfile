@@ -17,7 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #config.vm.provision :file, :source => ".bash_profile", :destination => "/home/vagrant/.bash_profile"
 
     config.vm.provider "virtualbox" do |vb|
-        vb.name = "snakes-web"
+        vb.name = "challenge-server-web"
     end
     # Create a forwarded port mapping which allows access to a specific port
     # within the machine from a port on the host machine. In the example below,
