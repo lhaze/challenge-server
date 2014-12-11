@@ -168,6 +168,13 @@ class Tile(namedtuple('Tile', ('x', 'y'))):
         vector = other - self
         return (vector in self.VECTOR_2_DIRECTION_MAP.keys())
 
+    def to_short_repr(self):
+        """
+        Returns short representation of the tile in the form of:
+            <int>,<int>
+        """
+        return ",".join((str(self.x), str(self.y)))
+
 
 class Snake(deque):
     """
@@ -231,8 +238,10 @@ class Snake(deque):
         """
 
         sequence = []
+        # XXX turn self into sequence of values of turns
         return "{head}:{heading}:{turn_sequence}".format(
-            head=self.head, heading=self.heading, turn_sequence=sequence)
+            head=self.head.to_short_repr(), heading=self.heading,
+            turn_sequence=sequence)
 
     @property
     def head(self):

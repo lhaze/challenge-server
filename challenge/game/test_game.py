@@ -5,9 +5,7 @@ from .entities import Direction, Snake, Tile, Turn
 
 class TestTileDirection(object):
     """
-    Tests of features with Tile-Direction interaction. Some of them may sound
-    dumb, but here are the sweet spots where a bug has cost me hours of
-    non-obvious debugging.
+    Tests of features with Tile-Direction interaction.
     """
 
     @pytest.mark.parametrize("direction, turn, result", [
@@ -18,7 +16,7 @@ class TestTileDirection(object):
         (Direction.SOUTH, Turn.LEFT, Direction.EAST),
     ])
     def test_turning_direction(self, direction, turn, result):
-        " Test of orders which changes Direction in the right(sic!) way "
+        " Test of orders which changes Direction in the right (sic!) way "
         assert direction.make_turn(turn) == result
 
     @pytest.mark.parametrize("direction, result", [
@@ -54,6 +52,7 @@ class TestSnake(object):
     Tests assumptions about Snake objects.
     """
 
+    @pytest.mark.xfail
     @pytest.mark.parametrize("snake_repr", [
         "5,5:N:FRLF",
         "-1,-1:E:L",
@@ -61,7 +60,7 @@ class TestSnake(object):
     ])
     def test_hhot2snake(self, snake_repr):
         " Test of transforming HHOT form to Snake instance and back "
-        assert snake_repr == Snake.from_hhot_form(snake_repr).to_hhot()
+        assert snake_repr == Snake.from_hhot_form(snake_repr).to_hhot_form()
 
     @pytest.mark.parametrize("snake", [])
     def test_snake2hhot(self, snake):
@@ -74,3 +73,4 @@ class TestSnake(object):
     def test_intersecting_snake(self, snake, result):
         " Test of intersecting snake validation "
         assert snake.is_non_intersecting == result
+
