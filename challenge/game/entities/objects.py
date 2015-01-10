@@ -15,21 +15,26 @@ class Direction(IntEnum):
     SOUTH = 2
     WEST = 3
 
-    # Enum/IntEnum can have only __dunder__ attributes as the one not processed
+    # Enum/IntEnum can have only __dunder__ attributes as the ones not processed
     # by their Enum.__new__
     __SYMBOL_2_VALUE_MAP__ = {
         'N': 0,
         'E': 1,
         'S': 2,
-        'W': 3
+        'W': 3,
     }
 
+    # FIXME accessing Turn by their values seems a naive way, but it is a
+    # workaround around other INSTANCE of Turn type here. Turn instances
+    # can't be used as keys, else you're going to encounter a KeyError on
+    # Direction.make_turn method. This seems to be a enum34 bug.
     __TURN_2_ADDEND_MAP__ = {
         None: 0,  # No turn is interpreted like the Turn.FORWARD!
-        Turn.FORWARD: 0,
-        Turn.RIGHT: 1,
-        Turn.LEFT: -1
+        'F': 0,
+        'R': 1,
+        'L': -1,
     }
+
 
     @classmethod
     def from_symbol(cls, symbol):
@@ -44,8 +49,8 @@ class Direction(IntEnum):
             value = cls.__SYMBOL_2_VALUE_MAP__[symbol]
         except KeyError:
             raise ValueError(
-                "Invalid Direction symbol. Accepted values are: {}.".format(
-                ", ".join(cls.__SYMBOL_2_VALUE_MAP__.keys())))
+                "Invalid Direction symbol '{}'. Accepted values are: {}.". \
+                format(symbol, ", ".join(cls.__SYMBOL_2_VALUE_MAP__.keys())))
         return cls(value)
 
     def make_turn(self, turn):
@@ -60,13 +65,14 @@ class Direction(IntEnum):
             a new Direction you are facing after the turn.
         """
         try:
-            addend = self.__TURN_2_ADDEND_MAP__[turn]
+            addend = self.__TURN_2_ADDEND_MAP__[turn.value]
         except KeyError:
-            raise ValueError(
-                "Invalid turn choice. Accepted values are Turn instances "
-                "or None.")
+            raise ValueError((
+                "Invalid turn choice '{}'. Accepted values are Turn instances "
+                "or None.").format(turn))
         return Direction((self + addend) % 4)
 
+    @property
     def opposite(self):
         """
         Returns:
@@ -145,8 +151,8 @@ class Tile(namedtuple('Tile', ('x', 'y'))):
             vector = self.DIRECTION_2_VECTOR_MAP[direction]
         except KeyError:
             raise ValueError((
-                "Invalid direction: {}. Accepted values are Direction instances"
-                " only.").format(
+                "Invalid direction '{}'. Accepted values are Direction "
+                "instances only.").format(
                 direction))
         return self + vector
 
@@ -173,7 +179,7 @@ class Tile(namedtuple('Tile', ('x', 'y'))):
         Returns short representation of the tile in the form of:
             <int>,<int>
         """
-        return ",".join((str(self.x), str(self.y)))
+        return ",".join((str(self[0]), str(self[1])))
 
 
 class Snake(deque):
@@ -220,7 +226,7 @@ class Snake(deque):
         """
         head, heading_symbol, turn_sequence = snake_repr.split(':')
         tile = Tile(*head.split(','))
-        direction = Direction.from_symbol(heading_symbol).opposite()
+        direction = Direction.from_symbol(heading_symbol).opposite
         sequence = deque((tile,))
         for turn_symbol in turn_sequence:
             turn = Turn(turn_symbol)

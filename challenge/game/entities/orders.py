@@ -11,7 +11,7 @@ class Turn(Enum):
     RIGHT = 'R'
     LEFT = 'L'
 
-    # Enum/IntEnum can have only __dunder__ attributes as the one not processed
+    # Enum/IntEnum can have only __dunder__ attributes as the ones not processed
     # by their Enum.__new__
     __OPPOSITE_MAP__ = {
         FORWARD: FORWARD,
@@ -19,6 +19,7 @@ class Turn(Enum):
         RIGHT: LEFT
     }
 
+    @property
     def opposite(self):
         """
         What would be the turn if you have to do it in the opposite direction?
