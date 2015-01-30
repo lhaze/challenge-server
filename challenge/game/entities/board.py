@@ -1,10 +1,10 @@
-class Map(object):
+class Board(object):
     """
-    Represents game map: array of tiles with snakes and possible obstacles on
-    it. It encapsulates game logic related to the map.
+    Represents game board: array of tiles with snakes and possible obstacles on
+    it.
 
-    Map is intended to be persisted as JSON to be stored in either in KV stores,
-    or in RDBMs.
+    Board is intended to be persisted as JSON to be stored in either in KV
+    stores or in RDBMs.
     """
     snakes = None
     food = None
@@ -14,9 +14,9 @@ class Map(object):
     def from_json(self, json_repr):
         """
         Params:
-            json_repr - a string containing JSON serialization of the Map.
+            json_repr - a string containing JSON serialization of the Board.
         Returns:
-            a Map instance from serialized state.
+            a Board instance from serialized state.
         """
         pass
 
@@ -25,12 +25,12 @@ class Map(object):
 
     def compute_orders(self, orders):
         """
-        Passes orders (Turn instances) on all snakes, even if it leads to
+        Passes orders (Order instances) on all snakes, even if it leads to
         an invalid map state. This method assumes that you've passed order for
         all snakes, even if it is None.
 
         Params:
-            orders - orders per snake: a list of Turn instances
+            orders - orders per snake: a list of Order instances
         """
         # TODO doesn't it need to be immutable? together with Snakes?
         snakes = [
@@ -38,7 +38,7 @@ class Map(object):
             for snake, order in zip(self.snakes, orders)
         ]
         # remove a food iff needed
-        return Map(snakes, objects, food)
+        return Board(snakes, objects, food)
 
     def is_valid(self):
         """
@@ -48,4 +48,3 @@ class Map(object):
         snakes_are_valid = all(snake.is_valid() for snake in self.snakes)
         clash = Snake.snake_clash(self.snakes)
         return snakes_are_valid and not clash
-

@@ -2,7 +2,7 @@ from collections import deque, namedtuple, Sequence
 from enum import IntEnum
 import itertools
 
-from .orders import Turn
+from .orders import Order
 
 
 class Direction(IntEnum):
@@ -31,8 +31,8 @@ class Direction(IntEnum):
         3: 'W',
     }
 
-    # FIXME accessing Turn by their values seems a naive way, but it is a
-    # workaround around other INSTANCE of Turn type here. Turn instances
+    # FIXME accessing Order by their values seems a naive way, but it is a
+    # workaround around other INSTANCE of Order type here. Order instances
     # can't be used as keys, else you're going to encounter a KeyError on
     # Direction.make_turn method. This seems to be a enum34 bug.
     __TURN_2_ADDEND_MAP__ = {
@@ -74,29 +74,29 @@ class Direction(IntEnum):
         """
         return self.__VALUE_2_SYMBOL_MAP__[self.value]
 
-    def make_turn(self, turn):
+    def make_turn(self, order):
         """
-        This method lets you change the direction regarding the given turn.
+        This method lets you change the direction regarding the given order.
 
-        NOTE: None is interpreted like the Turn.FORWARD!
+        NOTE: None is interpreted like the Order.FORWARD!
 
         Params:
-            order - a Turn instancein which direction you should turn.
+            order - an Order instance in which direction you should to turn.
         Returns:
             a new Direction you are facing after the turn.
         """
         try:
-            addend = self.__TURN_2_ADDEND_MAP__[turn.value]
+            addend = self.__TURN_2_ADDEND_MAP__[order.value]
         except KeyError:
             raise ValueError((
-                "Invalid turn choice '{}'. Accepted values are Turn instances "
-                "or None.").format(turn))
+                "Invalid order '{}'. Accepted values are Order instances "
+                "or None.").format(order))
         return Direction((self + addend) % 4)
 
     def get_turn_to(self, direction):
         """
         Returns:
-            Turn instance representing a turn which you have to take to make
+            Order instance representing a turn which you have to take to make
             'self' change into 'direction'.
         Raises:
             ValueError iff it can't be done (ie. turning N into S can't be done
@@ -107,7 +107,7 @@ class Direction(IntEnum):
             raise ValueError((
                 "Turning from {} to {} can't be done in a single "
                 "turn.").format(self.value, direction.value))
-        return Turn(symbol)
+        return Order(symbol)
 
     @property
     def opposite(self):
@@ -254,7 +254,7 @@ class Snake(deque):
     @classmethod
     def from_tile_form(cls, snake_repr):
         """
-        Creates instance from stringified sequence of turns.
+        Creates instance from stringified sequence of tiles.
 
         BNF of the tiles form:
         <tile> ::= <number> "," <number>
@@ -281,18 +281,14 @@ class Snake(deque):
         representation, snake is easy to move, rotate or reproduce his history
         of commands.
 
-        NOTE 1: Reversed sequence of opposited turns is just a history of snake
+        NOTE: Reversed sequence of opposited turns is just a history of snake
             turns (hence the 'opposite' concept in the name).
-
-        NOTE 2: Definition states there is at least one turn, so the snake
-            should have at least 3 tiles (head, heading-determined and
-            turn-determined).
 
         BNF of the HHOT form:
         <tile> ::= <number> "," <number>
         <head> ::= <tile>
         <heading> ::= "N" | "E" | "S" | "W"  # Direction.NORTH/EAST/SOUTH/WEST
-        <turn> ::= "F" | "L" | "R"  # Turn.FORWARD/LEFT/RIGHT
+        <turn> ::= "F" | "L" | "R"  # Order.FORWARD/LEFT/RIGHT
         <turn_sequence> ::= <turn> <turn_sequence> | <turn>
         <snake_repr> ::= <head> ":" <heading> <turn_sequence>
 
@@ -307,9 +303,9 @@ class Snake(deque):
         head = Tile(*head_repr.split(','))
         tile = head.get_adjacent(direction)
         snake = deque((head, tile))
-        for turn_symbol in body_repr[1:]:
-            turn = Turn(turn_symbol)
-            direction = direction.make_turn(turn)
+        for order_symbol in body_repr[1:]:
+            order = Order(order_symbol)
+            direction = direction.make_turn(order)
             tile = tile.get_adjacent(direction)
             snake.append(tile)
         return cls(snake)
@@ -322,7 +318,7 @@ class Snake(deque):
         method.
         """
         # iterate over tiles, evaluate Directions (using pair of adjacent
-        # tiles) and turn them to Turns (using pairs of sequential Directions)
+        # tiles) and turn them to Orders (using pairs of sequential Directions)
         tiles_iterator = iter(self)
         next(tiles_iterator)
         old_tile = next(tiles_iterator)
@@ -355,7 +351,7 @@ class Snake(deque):
         return self[-1]
 
     def move(self, order, foods=None):
-        self.heading = self.heading.turn(order)  # turn your head
+        self.heading = self.heading.make_turn(order)  # turn your head
         new_head = self[0].get_adjacent(self.heading)
         self.appendleft(new_head)  # move your head forward
         fed = new_head in foods  # do I reach the food?

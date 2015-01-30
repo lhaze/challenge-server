@@ -22,7 +22,7 @@ class Game(object):
     def compute_orders(self, orders):
         """
         Params:
-            orders - a dict of {user_hash: Turn instance}
+            orders - a dict of {user_hash: Order instance}
         """
         assert self.state, "Current state of the game hasn't been provided"
         # map orders from players to snakes
@@ -65,7 +65,7 @@ class GameState(object):
         Computes next state of the game, using given orders.
 
         Params:
-            orders - a dict of {player_hash: Turn instance}
+            orders - a dict of {player_hash: Order instance}
         Returns:
             a new instance of GameState (not necessary valid) after executing
             the orders.

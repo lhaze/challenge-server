@@ -1,6 +1,3 @@
-
-
-
 class Clash(object):
 
     @classmethod

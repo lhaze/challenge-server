@@ -1,5 +1,5 @@
 # flake8: noqa
-from .map import Map
+from .board import Board
 from .objects import Direction, Snake, Tile
-from .orders import Turn
+from .orders import Order
 from .game import Game, GameHistory

@@ -5,6 +5,8 @@
 # project management
 .vagrant
 .tox
+__pycache__
+.cache
 
 # IDEs
 *.swp

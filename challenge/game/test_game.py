@@ -1,21 +1,21 @@
 import pytest
 
-from .entities import Direction, Snake, Tile, Turn
+from .entities import Direction, Order, Snake, Tile
 
 
 class TestDirection(object):
     """ Tests of Direction class """
 
-    @pytest.mark.parametrize("direction, turn, result", [
-        (Direction.NORTH, Turn.FORWARD, Direction.NORTH),
-        (Direction.NORTH, Turn.LEFT, Direction.WEST),
-        (Direction.WEST, Turn.RIGHT, Direction.NORTH),
-        (Direction.SOUTH, Turn.RIGHT, Direction.WEST),
-        (Direction.SOUTH, Turn.LEFT, Direction.EAST),
+    @pytest.mark.parametrize("direction, order, result", [
+        (Direction.NORTH, Order.FORWARD, Direction.NORTH),
+        (Direction.NORTH, Order.LEFT, Direction.WEST),
+        (Direction.WEST, Order.RIGHT, Direction.NORTH),
+        (Direction.SOUTH, Order.RIGHT, Direction.WEST),
+        (Direction.SOUTH, Order.LEFT, Direction.EAST),
     ])
-    def test_turning_direction(self, direction, turn, result):
+    def test_turning_direction(self, direction, order, result):
         " Test of orders which changes Direction in the right (sic!) way "
-        assert direction.make_turn(turn) == result
+        assert direction.make_turn(order) == result
 
     @pytest.mark.parametrize("direction, result", [
         (Direction.NORTH, Direction.SOUTH),
@@ -34,23 +34,23 @@ class TestDirection(object):
         for d in Direction:
             assert d == S2V[V2S[d.value]]
 
-    @pytest.mark.parametrize("this_turn, other_direction, result", [
-        (Direction.NORTH, Direction.WEST, Turn.LEFT),
-        (Direction.NORTH, Direction.EAST, Turn.RIGHT),
-        (Direction.NORTH, Direction.NORTH, Turn.FORWARD),
-        (Direction.WEST, Direction.NORTH, Turn.RIGHT),
-        (Direction.WEST, Direction.SOUTH, Turn.LEFT),
+    @pytest.mark.parametrize("this_direction, other_direction, result", [
+        (Direction.NORTH, Direction.WEST, Order.LEFT),
+        (Direction.NORTH, Direction.EAST, Order.RIGHT),
+        (Direction.NORTH, Direction.NORTH, Order.FORWARD),
+        (Direction.WEST, Direction.NORTH, Order.RIGHT),
+        (Direction.WEST, Direction.SOUTH, Order.LEFT),
     ])
-    def test_get_turn_to(self, this_turn, other_direction, result):
+    def test_get_turn_to(self, this_direction, other_direction, result):
         " Test of Direction.get_turn_to "
-        assert this_turn.get_turn_to(other_direction) == result
+        assert this_direction.get_turn_to(other_direction) == result
 
     def test_turn2addend_bijection(self):
         " Test of __TURN_2_ADDEND_MAP__/__DIFFERENCE_2_TURN_MAP__ bijection "
         T2A = Direction.__TURN_2_ADDEND_MAP__
         D2T = Direction.__DIFFERENCE_2_TURN_MAP__
-        for t in Turn:
-            value = t.value
+        for o in Order:
+            value = o.value
             assert value == D2T[T2A[value]]
 
 
