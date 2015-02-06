@@ -4,9 +4,10 @@
 
 # project management
 .vagrant
-.tox
 __pycache__
 .cache
+.coverage
+.coverage-report
 
 # IDEs
 *.swp

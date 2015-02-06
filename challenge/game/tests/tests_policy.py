@@ -21,13 +21,15 @@ def test_generate_food_unoccupied():
 
 
 class TestMoveSnake(object):
-
+    """ Tests of move_snake strategy """
     @pytest.fixture
     def snake(self):
+        " A snake for the tests "
         return Snake.from_hhot_form("5,5:NR")
 
     @pytest.fixture
     def food(self):
+        " Food placed in front of mouth of the snake "
         return [Tile(5, 6)]
 
     def test_pulling_tail_without_food(self, snake):
