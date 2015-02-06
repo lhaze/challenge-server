@@ -350,14 +350,6 @@ class Snake(deque):
         """ The tail of the snake (its last tile), rightmost."""
         return self[-1]
 
-    def move(self, order, foods=None):
-        self.heading = self.heading.make_turn(order)  # turn your head
-        new_head = self[0].get_adjacent(self.heading)
-        self.appendleft(new_head)  # move your head forward
-        fed = new_head in foods  # do I reach the food?
-        if not fed:  # iff not, I don't grow, so...
-            self.pop()  # pull my tail
-
     def is_valid(self):
         """
         True iff snake is valid, which means:

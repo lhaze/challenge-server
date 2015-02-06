@@ -6,6 +6,7 @@ class Board(object):
     Board is intended to be persisted as JSON to be stored in either in KV
     stores or in RDBMs.
     """
+    policy = None
     snakes = None
     food = None
     walls = None
@@ -18,10 +19,10 @@ class Board(object):
         Returns:
             a Board instance from serialized state.
         """
-        pass
+        pass  # TODO immplementation
 
-    def __init__(self, state, policy):
-        self.food_generation_strategy = policy.food_generation
+    def __init__(self, state):
+        pass  # TODO implementation
 
     def compute_orders(self, orders):
         """
@@ -34,11 +35,12 @@ class Board(object):
         """
         # TODO doesn't it need to be immutable? together with Snakes?
         snakes = [
-            snake.move(order, self.food)
+            self.policy.move_snake(snake, order, self.food)
             for snake, order in zip(self.snakes, orders)
         ]
-        # remove a food iff needed
-        return Board(snakes, objects, food)
+        # TODO remove a food iff needed
+        # TODO generate new food iff needed
+        return self  # TODO fix when (im)mutablity is decided
 
     def is_valid(self):
         """

@@ -70,6 +70,7 @@ class GameState(object):
             a new instance of GameState (not necessary valid) after executing
             the orders.
         """
+        # TODO mutable/immutable board?
         return GameState(game, turn+1, self.map.compute_orders(orders))
 
     def get_result(self, result_policy):
