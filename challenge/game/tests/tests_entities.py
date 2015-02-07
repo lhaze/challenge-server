@@ -97,20 +97,40 @@ class TestSnake(object):
     ])
     def test_hhot2snake(self, snake_repr):
         " Test of transforming HHOT form to Snake instance and back "
-        assert snake_repr == Snake.from_hhot_form(snake_repr).to_hhot_form()
+        snake = Snake.from_hhot_form(snake_repr)
+        assert snake.is_valid()
+        assert snake_repr == snake.to_hhot_form()
 
     @pytest.mark.parametrize("snake_tile_repr", [
         "5,5:5,6:6,6:7,6",
-        "1,1:2,1:2,2:1,2:1,1"
+        "1,1:2,1:2,2:1,2"
     ])
     def test_snake2hhot(self, snake_tile_repr):
         " Test of transforming Snake instance to HHOT and back "
         snake = Snake.from_tile_form(snake_tile_repr)
+        assert snake.is_valid()
         assert snake == Snake.from_hhot_form(snake.to_hhot_form())
 
     @pytest.mark.parametrize("snake, result", [
-        (Snake.from_hhot_form("1,1:SRRR"), False)
+        (Snake.from_hhot_form("1,1:SRRR"), False),
+        (Snake.from_hhot_form("1,1:SRR"), True),
+        (Snake.from_hhot_form("1,1:S"), True)
     ])
     def test_non_intersecting_snake(self, snake, result):
         " Test of intersecting snake validation "
         assert snake.is_non_intersecting() == result
+
+    @pytest.mark.parametrize("snake, result", [
+        (Snake.from_tile_form("1,1:2,2:2,3"), False),
+        (Snake.from_tile_form("1,1:1,3:1,4"), False),
+        (Snake.from_tile_form("1,1:1,2:2,2:2,1:3,1"), True),
+    ])
+    def test_is_consistent(self, snake, result):
+        " Test of snake consistency validation "
+        assert snake.is_consistent() == result
+
+    def test_has_valid_heading(self):
+        " Test of heading validation "
+        snake = Snake.from_tile_form("1,1:1,2:1,3")
+        snake.heading = Direction.NORTH
+        assert not snake.has_valid_heading()
