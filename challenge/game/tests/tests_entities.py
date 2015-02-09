@@ -1,6 +1,6 @@
 import pytest
 
-from ..entities import Direction, Order, Snake, Tile
+from game.entities import Direction, Order, Snake, Tile
 
 
 class TestDirection(object):

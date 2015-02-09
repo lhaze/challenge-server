@@ -1,6 +1,6 @@
 from bunch import Bunch
 
-from ..entities import policy
+from .. import policy
 
 
 def game_policy_factory(description):

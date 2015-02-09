@@ -1,9 +1,9 @@
 import pytest
 import mock
 
-from .. import policy
-from ..repos.board import board_factory
-from ..entities import Direction, Order, Snake, Tile
+from game import policy
+from game.repos import board_factory
+from game.entities import Direction, Order, Snake, Tile
 
 
 tile_list = [Tile(1, 1), Tile(1, 1), Tile(5, 5), None]
@@ -11,7 +11,7 @@ mocked_get_random_tile = mock.MagicMock(
     side_effect=lambda *args: tile_list.pop(0))
 
 
-@mock.patch('challenge.game.policy._get_random_tile', mocked_get_random_tile)
+@mock.patch('game.policy._get_random_tile', mocked_get_random_tile)
 def test_generate_food_unoccupied():
     " Test of getting unoccupied tile using generate_food_unoccupied "
     board = board_factory('')  # TODO use actual description
