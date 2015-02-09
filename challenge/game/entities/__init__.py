@@ -1,5 +1,7 @@
-# flake8: noqa
-from .board import Board
-from .objects import Direction, Snake, Tile
-from .orders import Order
-from .game import Game, GameHistory
+from __future__ import absolute_import
+from utils import import_all_classes
+
+
+
+import_all_classes(__file__, __name__)
+
