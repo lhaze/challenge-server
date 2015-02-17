@@ -20,6 +20,22 @@ def move_snake(snake, order, food):
         snake.pop()  # pull my tail
 
 
+def simple_border_check(size, snake):
+    """
+    True iff all tiles of the given snake are inside of board's borders.
+
+    Params:
+        size - the size of the board: 2-tuple of positive ints
+        snake - given Snake instance
+    """
+    max_x, max_y = size
+    for x, y in snake:
+        # iterate over snake's tiles and take their coordinates
+        if not (0 <= x <= max_x and 0 <= y <= max_y):
+            return False
+    return True
+
+
 def _rand_value(max_value):
     """ Returns random int from the 1..max_value interval """
     return randint(1, max_value)
@@ -42,7 +58,7 @@ def generate_food_naive(board):
     Returns:
         a Tile instance.
     """
-    return _get_random_tile(board.max_x, board.max_y)
+    return _get_random_tile(*board.size)
 
 
 def generate_food_unoccupied(board):
@@ -57,7 +73,7 @@ def generate_food_unoccupied(board):
         a Tile instance.
     """
     while True:
-        tile = _get_random_tile(board.max_x, board.max_y)
+        tile = _get_random_tile(*board.size)
         for snake in board.snakes:
             if tile in snake:
                 break

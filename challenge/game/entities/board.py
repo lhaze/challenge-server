@@ -1,28 +1,18 @@
 class Board(object):
     """
-    Represents game board: array of tiles with snakes and possible obstacles on
-    it.
-
-    Board is intended to be persisted as JSON to be stored in either in KV
-    stores or in RDBMs.
+    Represents game board: array of tiles with snakes, pieces of food and
+    possible obstacles on it.
     """
-    policy = None
-    snakes = None
-    food = None
-    walls = None
 
-    @classmethod
-    def from_json(self, json_repr):
-        """
-        Params:
-            json_repr - a string containing JSON serialization of the Board.
-        Returns:
-            a Board instance from serialized state.
-        """
-        pass  # TODO immplementation
+    def __init__(self, policy, snakes, food):
+        self.policy = policy
+        self.snakes = snakes
+        self.food = food
 
-    def __init__(self, state):
-        pass  # TODO implementation
+    @property
+    def size(self):
+        """ Returns size of the board: a 2-tuple of positive ints """
+        return self.policy.size
 
     def compute_orders(self, orders):
         """
@@ -48,5 +38,14 @@ class Board(object):
         and there's no clash between them, objects and walls.
         """
         snakes_are_valid = all(snake.is_valid() for snake in self.snakes)
-        clash = Snake.snake_clash(self.snakes)
-        return snakes_are_valid and not clash
+        snakes_coherent_with_board = all(
+            self.is_coherent_with_snake(snake) for snake in self.snakes)
+        clashes = Snake.snake_clash(self.snakes)
+        return snakes_are_valid and snakes_coherent_with_board and not clashes
+
+    def is_coherent_with_snake(self, snake):
+        """
+        True iff a given snake is coherent with the board. For now, it checks
+        wheather snake hasn't moved across board's borders.
+        """
+        self.policy.check_snake(self.size, snake)

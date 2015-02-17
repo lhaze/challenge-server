@@ -2,7 +2,7 @@ import pytest
 import mock
 
 from game import policy
-from game.repos import board_factory
+from game.repos import exemplary_board_factory
 from game.entities import Direction, Order, Snake, Tile
 
 
@@ -14,7 +14,7 @@ mocked_get_random_tile = mock.MagicMock(
 @mock.patch('game.policy._get_random_tile', mocked_get_random_tile)
 def test_generate_food_unoccupied():
     " Test of getting unoccupied tile using generate_food_unoccupied "
-    board = board_factory('')  # TODO use actual description
+    board = exemplary_board_factory()
     result = policy.generate_food_unoccupied(board)
     assert result == Tile(5, 5)
     assert mocked_get_random_tile.call_count == 3
@@ -71,3 +71,19 @@ class TestMoveSnake(object):
         head_before = snake.head
         policy.move_snake(snake, order, [])
         assert snake.head == head_before.get_adjacent(heading)
+
+
+class TestCheckSnake(object):
+    """ Tests of check_snake strategies """
+
+    @pytest.mark.parametrize("snake_repr, result", [
+        ('0,0:0,1:1,1:1,0', True),
+        ('5,5:4,5:4,4:5,4', True),
+        ('6,5:5,5', False),
+        ('5,6:5,5', False),
+        ('-1,0:0,0', False),
+        ('0,-1:0,0', False),
+    ])
+    def test_simple_border_check(self, snake_repr, result):
+        snake = Snake.from_tile_form(snake_repr)
+        assert policy.simple_border_check((5, 5), snake) == result
