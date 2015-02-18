@@ -11,11 +11,11 @@ mocked_get_random_tile = mock.MagicMock(
     side_effect=lambda *args: tile_list.pop(0))
 
 
-@mock.patch('game.policy._get_random_tile', mocked_get_random_tile)
-def test_generate_food_unoccupied():
+def test_generate_food_unoccupied(mocker):
     " Test of getting unoccupied tile using generate_food_unoccupied "
     board = exemplary_board_factory()
-    result = policy.generate_food_unoccupied(board)
+    with mocker.patch('game.policy._get_random_tile', mocked_get_random_tile):
+        result = policy.generate_food_unoccupied(board)
     assert result == Tile(5, 5)
     assert mocked_get_random_tile.call_count == 3
 

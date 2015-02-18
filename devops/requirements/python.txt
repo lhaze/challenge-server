@@ -16,4 +16,5 @@ pytest==2.6.4
 pytest-cov==1.8.1
 git+git://github.com/mverteuil/pytest-ipdb.git
 mock==1.0.1
-
+pytest-mock==0.4.0
+pytest-pep8==1.0.6
