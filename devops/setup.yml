@@ -1,0 +1,33 @@
+---
+- hosts: web
+  user: vagrant
+  sudo: yes
+  tasks:
+
+    - name: install system requirements
+      apt: name={{ item }} state=present update_cache=yes
+      with_items:
+        - python-pip
+        - git
+        - htop
+        - tree
+        - vim
+
+    - name: install python requirements
+      action: pip requirements={{ playbook_dir }}/requirements/python.txt state=present
+
+
+---
+- hosts: redis
+  user: vagrant
+  sudo: yes
+  tasks:
+
+    - name: install Redis server
+      apt: name=redis-server state=latest update_cache=yes
+
+    - name: check if Redis is running
+      service: name=redis-server state=started
+
+    - name: enable redis-server to survive reboot
+      service: name=redis-server enabled=yes
