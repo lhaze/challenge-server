@@ -1,5 +1,6 @@
 # web server
 Flask==0.10.1
+Flask-Script==2.0.5
 Hamlish-Jinja==0.3.2
 
 bunch==1.0.1
