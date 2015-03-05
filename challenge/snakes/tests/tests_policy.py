@@ -1,9 +1,9 @@
 import pytest
 import mock
 
-from game import policy
-from game.repos import exemplary_board_factory
-from game.entities import Direction, Order, Snake, Tile
+from snakes import policy
+from snakes.repos import exemplary_board_factory
+from snakes.entities import Direction, Order, Snake, Tile
 
 
 tile_list = [Tile(1, 1), Tile(1, 1), Tile(5, 5), None]
@@ -14,7 +14,8 @@ mocked_get_random_tile = mock.MagicMock(
 def test_generate_food_unoccupied(mocker):
     " Test of getting unoccupied tile using generate_food_unoccupied "
     board = exemplary_board_factory()
-    with mocker.patch('game.policy._get_random_tile', mocked_get_random_tile):
+    with mocker.patch('snakes.policy._get_random_tile',
+                      mocked_get_random_tile):
         result = policy.generate_food_unoccupied(board)
     assert result == Tile(5, 5)
     assert mocked_get_random_tile.call_count == 3
