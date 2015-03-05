@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = "2"
+require 'rbconfig'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = "ubuntu/trusty64"
@@ -11,14 +12,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.name = "challenge-server-web"
     end
 
-    config.vm.network "forwarded_port", guest: 8000, host: 8000
-    config.vm.network "private_network", ip: "192.168.33.10"
+    config.vm.network "forwarded_port", guest: 5000, host: 8000
     config.vm.network "public_network"
 
-    # Pass the configuration flow to the Ansible installed inside the VM
-    config.vm.provision "shell", :path => "devops/install_ansible.sh"
-    config.vm.provision "shell" do |s|
-        s.inline = "ansible-playbook"
-        s.args = ["devops/setup.yml", "-i", "devops/inventory_windows.sh"]
+    is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
+    if is_windows
+        # provisioning with shell script (and local Ansible within VM)
+        config.vm.provision "shell", :path => "devops/install_ansible.sh"
+        config.vm.provision "shell" do |sh|
+            sh.path = "devops/provision_locally.sh"
+            sh.args = "devops/setup_playbook.yml"
+        end
+    else
+        # provisioning with Ansible through SSH.
+        config.vm.provision "ansible" do |ansible|
+            ansible.playbook = "devops/setup_playbook.yml"
+            ansible.inventory_path = "web,"
+            ansible.sudo = true
+        end
     end
 end
