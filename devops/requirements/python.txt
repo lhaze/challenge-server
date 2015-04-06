@@ -4,6 +4,7 @@ Flask-RESTful==0.3.2
 Flask-Script==2.0.5
 Hamlish-Jinja==0.3.2
 
+JsonWeb==0.8.2
 bunch==1.0.1
 enum34==1.0.4
 

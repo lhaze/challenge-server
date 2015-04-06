@@ -12,7 +12,7 @@ class Board(object):
     @property
     def size(self):
         """ Returns size of the board: a 2-tuple of positive ints """
-        return self.policy.size
+        return self.policy.board_size
 
     def compute_orders(self, orders):
         """
