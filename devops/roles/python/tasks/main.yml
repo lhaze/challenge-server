@@ -1,0 +1,46 @@
+---
+- name: add Python PPA
+  apt_repository:
+    repo: "ppa:fkrull/deadsnakes"
+    state: present
+
+# TODO upgrade Pythons to latest (at least 2.7.6 to 2.7.12)
+
+- name: ensure that Python2 packages are installed
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items: "{{ python_apt_packages_2 }}"
+
+- name: ensure that Python3 packages are installed
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items: "{{ python_apt_packages_3 }}"
+
+- name: reinstall pip version (specified version)
+  pip:
+    name: pip
+    version: "{{ virtualenv_pip_version }}"
+  when: virtualenv_pip_version is defined
+
+- name: reinstall pip version (latest)
+  pip:
+    name: pip
+    extra_args: "--upgrade"
+  when: virtualenv_pip_version is not defined
+
+- name: update setuptools (specified version)
+  pip:
+    name: "setuptools=={{ python_setuptools_version }}"
+    state: present
+  when: python_setuptools_version is defined
+
+- name: update setuptools (latest)
+  pip:
+    name: "setuptools"
+    extra_args: "--upgrade"
+    state: present
+  when: python_setuptools_version is not defined

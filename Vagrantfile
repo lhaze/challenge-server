@@ -15,20 +15,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.network "forwarded_port", guest: 5000, host: 8000
     config.vm.network "public_network"
 
-    is_windows = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/)
-    if is_windows
-        # provisioning with shell script (and local Ansible within VM)
-        config.vm.provision "shell", :path => "devops/install_ansible.sh"
-        config.vm.provision "shell" do |sh|
-            sh.path = "devops/provision_locally.sh"
-            sh.args = "devops/setup_playbook.yml"
-        end
-    else
-        # provisioning with Ansible through SSH.
-        config.vm.provision "ansible" do |ansible|
-            ansible.playbook = "devops/setup_playbook.yml"
-            ansible.inventory_path = "web,"
-            ansible.sudo = true
-        end
+    config.vm.define "localhost"
+    config.vm.provision "ansible_local" do |ansible|
+        ansible.playbook = "devops/setup.yml"
+        ansible.verbose = "vvv"
+        ansible.groups = {
+            "web" => ["localhost"],
+            "redis" => [],
+        }
     end
 end

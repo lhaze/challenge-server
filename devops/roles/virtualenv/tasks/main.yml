@@ -1,0 +1,87 @@
+---
+- name: install virtualenv (specififed version)
+  pip:
+    name: virtualenv
+    version: "{{ python_virtualenv_version }}"
+    state: present
+  become: yes
+  become_user: root
+  when: python_virtualenv_version is defined
+
+- name: install virtualenv (latest)
+  pip:
+    name: virtualenv
+    extra_args: "--upgrade"
+    state: present
+  become: yes
+  become_user: root
+  when: virtualenv_version is not defined
+
+- name: create folder for virtualenv
+  file:
+    state: directory
+    path: "{{ virtualenv_path }}"
+    owner: "{{ virtualenv_user }}"
+    group: "{{ virtualenv_group }}"
+  become: yes
+  become_user: root
+
+- name: check whether virtualenv exists
+  stat: path="{{ virtualenv_activate }}"
+  register: virtualenv_exists
+
+- name: create the virtualenv
+  shell: "virtualenv {{ virtualenv_path }} -p `which python{{ python_version }}`"
+  become: yes
+  become_user: "{{ virtualenv_user }}"
+  when: virtualenv_exists.stat.exists != true
+
+- name: reinstall pip inside virtualenv (specified version)
+  pip:
+    name: pip
+    version: "{{ virtualenv_pip_version }}"
+    virtualenv: "{{ virtualenv_path }}"
+  become: yes
+  become_user: "{{ virtualenv_user }}"
+  when: virtualenv_pip_version is defined
+
+- name: set VIRTUALENV_DIR envvar
+  lineinfile:
+    dest: "{{ shell_rc_file }}"
+    regexp: "export VIRTUALENV_DIR"
+    line: "export VIRTUALENV_DIR={{ virtualenv_path }}"
+    state: present
+    create: yes
+
+- name: set VIRTUALENV_ACTIVATE envvar
+  lineinfile:
+    dest: "{{ shell_rc_file }}"
+    regexp: "export VIRTUALENV_ACTIVATE"
+    line: "export VIRTUALENV_ACTIVATE={{ virtualenv_activate }}"
+    state: present
+    create: yes
+
+- name: set VIRTUALENV_DIR envvar
+  lineinfile:
+    dest: "{{ shell_rc_file }}"
+    regexp: "export VIRTUALENV_EXEC"
+    line: "export VIRTUALENV_EXEC={{ virtualenv_path }}/bin/exec"
+    state: present
+    create: yes
+
+- name: build venv_exec (virtualenv executor) script
+  template:
+    src: "templates/venv_exec.j2"
+    dest: "{{ virtualenv_path }}/bin/exec"
+    mode: 0755
+    owner: "{{ virtualenv_user }}"
+    group: "{{ virtualenv_group }}"
+
+- name: install requirements
+  pip:
+    requirements: "{{ virtualenv_requirements_file }}"
+    virtualenv: "{{ virtualenv_path }}"
+    extra_args: "--process-dependency-links"
+  become: yes
+  become_user: "{{ virtualenv_user }}"
+  when: virtualenv_requirements_file is defined

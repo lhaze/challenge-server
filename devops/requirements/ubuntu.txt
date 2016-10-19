@@ -1,6 +1,0 @@
-vim
-htop
-tree
-python-pip
-git
-ansible

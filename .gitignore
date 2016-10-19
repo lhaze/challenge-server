@@ -1,6 +1,9 @@
-# Python temp
+# Python artifacts
 *.py[cod]
+
+# devops artifacts
 *.egg-info
+devops/*.retry
 
 # project management
 .vagrant
@@ -10,12 +13,12 @@ __pycache__
 .coverage-report
 
 # IDEs
+.idea
 *.swp
 *~
-*.ropeproject
-*.psproj
 *.bat
 .TAGS
+
 
 # DB
 *.db

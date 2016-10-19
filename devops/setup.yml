@@ -1,0 +1,40 @@
+---
+- hosts: web
+  become: yes
+  become_user: vagrant
+
+  # vars_files:
+  #   - env_vars/base.yml
+  #   - env_vars/dev.yml
+
+  vars:
+    application_name: challange-server
+    python_version: 3.5
+    application_path: "/var/www/{{ application_name }}"
+    virtualenv_path: "/var/envs/{{ application_name }}"
+    virtualenv_user: vagrant
+    virtualenv_group: vagrant
+
+  roles:
+    - role: common
+
+    - role: python
+      become: yes
+      become_user: root
+
+    - role: virtualenv
+
+    # - role: supervisord  # needs python
+
+- hosts: redis
+  user: vagrant
+  become: yes
+  tasks:
+    - name: install Redis server
+      apt: name=redis-server state=latest update_cache=yes
+
+    - name: check if Redis is running
+      service: name=redis-server state=started
+
+    - name: enable redis-server to survive reboot
+      service: name=redis-server enabled=yes
