@@ -1,0 +1,14 @@
+---
+- name: install devops tools
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: "{{ devops_apt_packages }}"
+
+- name: install dev tools
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: "{{ dev_apt_packages }}"

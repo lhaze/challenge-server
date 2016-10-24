@@ -1,0 +1,35 @@
+---
+- name: install supervisor
+  pip:
+    name: "supervisor"
+    state: present
+
+- name: create supervisor conf dir
+  file:
+    path: "{{ supervisord_conf_dir }}"
+    state: directory
+    mode: 0644
+
+- name: create supervisord.conf file
+  # TODO actual ini content
+  template:
+    src: "templates/supervisord.conf.j2"
+    dest: "/etc/supervisor/supervisord.conf"
+    mode: 0644
+
+- name: create supervisord init script
+  template:
+    src: "templates/supervisord.init.j2"
+    dest: "{{ supervisord_init_script }}"
+    mode: 0755
+
+- name: add supervisord to init
+  service:
+    name: "{{ supervisord_service_name }}"
+    enabled: yes
+
+- name: ensure supervisord is running
+  service:
+    name: "{{ supervisord_service_name }}"
+    state: running
+    enabled: yes

@@ -1,0 +1,16 @@
+---
+- name: download the code from the repository
+  git:
+    repo: "{{ repository }}"
+    dest: "{{ application_path }}"
+  when: code_path is not defined
+
+- name: link the code from local code directory
+  file:
+    src: "{{ code_path }}"
+    dest: "{{ application_path }}"
+    state: link
+    owner: root
+    group: root
+#    mode: 0744
+  when: code_path is defined

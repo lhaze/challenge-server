@@ -11,14 +11,14 @@
     name: "{{item}}"
     state: present
     update_cache: yes
-  with_items: "{{ python_apt_packages_2 }}"
+  with_items: "{{ python_2_apt_packages }}"
 
 - name: ensure that Python3 packages are installed
   apt:
     name: "{{item}}"
     state: present
     update_cache: yes
-  with_items: "{{ python_apt_packages_3 }}"
+  with_items: "{{ python_3_apt_packages }}"
 
 - name: reinstall pip version (specified version)
   pip:

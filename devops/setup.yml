@@ -8,23 +8,31 @@
   #   - env_vars/dev.yml
 
   vars:
-    application_name: challange-server
-    python_version: 3.5
+    application_name: "challange-server"
+    repository: "https://github.com/lhaze/challenge-server.git"
+    python_version: "3.5"
     application_path: "/var/www/{{ application_name }}"
     virtualenv_path: "/var/envs/{{ application_name }}"
-    virtualenv_user: vagrant
-    virtualenv_group: vagrant
+    code_path: "/vagrant/"
+    virtualenv_user: "vagrant"
+    virtualenv_group: "vagrant"
+    www_user: "www"
+    www_group: "www"
 
   roles:
     - role: common
-
-    - role: python
       become: yes
       become_user: root
 
     - role: virtualenv
 
-    # - role: supervisord  # needs python
+    # - role: node
+#      become: yes
+#      become_user: root
+
+    - role: www_setup
+      become: yes
+      become_user: root
 
 - hosts: redis
   user: vagrant

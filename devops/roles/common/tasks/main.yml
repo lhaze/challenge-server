@@ -1,13 +1,4 @@
 ---
-- name: install system dev tools
-  apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-    - git
-    - htop
-    - tree
-    - vim
-  become: true
-  become_user: root
+- include: tools.yml
+- include: python.yml
+- include: supervisor.yml

@@ -65,14 +65,14 @@
   lineinfile:
     dest: "{{ shell_rc_file }}"
     regexp: "export VIRTUALENV_EXEC"
-    line: "export VIRTUALENV_EXEC={{ virtualenv_path }}/bin/exec"
+    line: "export VIRTUALENV_EXEC={{ virtualenv_exec }}"
     state: present
     create: yes
 
 - name: build venv_exec (virtualenv executor) script
   template:
     src: "templates/venv_exec.j2"
-    dest: "{{ virtualenv_path }}/bin/exec"
+    dest: "{{ virtualenv_exec }}"
     mode: 0755
     owner: "{{ virtualenv_user }}"
     group: "{{ virtualenv_group }}"
