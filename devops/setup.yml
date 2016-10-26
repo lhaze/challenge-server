@@ -8,16 +8,18 @@
   #   - env_vars/dev.yml
 
   vars:
-    application_name: "challange-server"
+    project_name: "challenge-server"
+    application_name: "challenge"
     repository: "https://github.com/lhaze/challenge-server.git"
     python_version: "3.5"
-    application_path: "/var/www/{{ application_name }}"
+    www_path: "/var/www"
     virtualenv_path: "/var/envs/{{ application_name }}"
     code_path: "/vagrant/"
     virtualenv_user: "vagrant"
     virtualenv_group: "vagrant"
-    www_user: "www"
-    www_group: "www"
+    www_user: "vagrant"
+    www_group: "vagrant"
+    shell_rc_file: "{{ ansible_env['HOME'] }}/.{{ ansible_env['SHELL'] | replace('/bin/','') }}rc"
 
   roles:
     - role: common
@@ -25,6 +27,8 @@
       become_user: root
 
     - role: virtualenv
+      become: yes
+      become_user: "{{ www_user }}"
 
     # - role: node
 #      become: yes

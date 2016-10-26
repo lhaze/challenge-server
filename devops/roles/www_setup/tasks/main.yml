@@ -1,16 +1,45 @@
 ---
-- name: download the code from the repository
-  git:
-    repo: "{{ repository }}"
-    dest: "{{ application_path }}"
-  when: code_path is not defined
+- name: create www dir
+  file:
+    path: "{{ www_path }}"
+    state: directory
+    mode: "u=rwX,g=rX,o=rX"
 
 - name: link the code from local code directory
   file:
     src: "{{ code_path }}"
-    dest: "{{ application_path }}"
+    dest: "{{ project_path }}"
     state: link
-    owner: root
-    group: root
-#    mode: 0744
   when: code_path is defined
+
+- name: download the code from the repository
+  git:
+    repo: "{{ repository }}"
+    dest: "{{ project_path }}"
+  when: code_path is not defined
+
+- name: set APPLICATION_DIR envvar
+  lineinfile:
+    dest: "{{ shell_rc_file }}"
+    regexp: "export APPLICATION_DIR"
+    line: "export APPLICATION_DIR={{ application_path }}"
+    state: present
+    create: yes
+  become: yes
+  become_user: "{{ www_user }}"
+
+- name: set APPLICATION_MANAGE envvar
+  lineinfile:
+    dest: "{{ shell_rc_file }}"
+    regexp: "export APPLICATION_MANAGE"
+    line: "export APPLICATION_MANAGE={{ manage_path }}"
+    state: present
+    create: yes
+  become: yes
+  become_user: "{{ www_user }}"
+
+- name: set permissions to application manage script
+  file:
+    path: "{{ manage_path }}"
+    group: "{{ www_group }}"
+    mode: "u=rwx,g=rx,o=r"

@@ -1,0 +1,4 @@
+---
+project_path: "{{ www_path }}/{{ project_name }}"
+application_path: "{{ project_path }}/{{ application_name }}"
+manage_path: "{{ application_path }}/manage.py"
