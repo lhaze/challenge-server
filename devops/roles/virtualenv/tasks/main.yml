@@ -78,10 +78,7 @@
     group: "{{ virtualenv_group }}"
 
 - name: install requirements
-  pip:
-    requirements: "{{ virtualenv_requirements_file }}"
-    virtualenv: "{{ virtualenv_path }}"
-    extra_args: "--process-dependency-links"
+  shell: "$VIRTUALENV_EXEC pip install -r {{ virtualenv_requirements_file }}"  # --process-dependency-links
   become: yes
   become_user: "{{ virtualenv_user }}"
   when: virtualenv_requirements_file is defined

@@ -1,5 +1,6 @@
 ---
 virtualenv_requirements_file: "{{ playbook_dir }}/requirements/python.txt"
+virtualenv_path: "{{ envs_path }}/{{ application_name }}-py"
 virtualenv_activate: "{{ virtualenv_path }}/bin/activate"
 virtualenv_exec: "{{ virtualenv_path }}/bin/exec"
 virtualenv_site_packages: "--no-site-packages"

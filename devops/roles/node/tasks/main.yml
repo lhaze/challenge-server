@@ -1,0 +1,17 @@
+---
+- name: install nodeenv
+  shell: $VIRTUALENV_EXEC pip install nodeenv
+
+- name: create folder for nodeenv
+  file:
+    state: directory
+    path: "{{ nodeenv_path }}"
+    owner: "{{ virtualenv_user }}"
+    group: "{{ virtualenv_group }}"
+  become: yes
+  become_user: root
+
+- name: create nodeenv
+  shell: nodeenv -p
+#  args:
+#    chdir: "{{ nodeenv_path }}"

@@ -13,7 +13,7 @@
     repository: "https://github.com/lhaze/challenge-server.git"
     python_version: "3.5"
     www_path: "/var/www"
-    virtualenv_path: "/var/envs/{{ application_name }}"
+    envs_path: "/var/envs"
     code_path: "/vagrant/"
     virtualenv_user: "vagrant"
     virtualenv_group: "vagrant"
@@ -30,9 +30,9 @@
       become: yes
       become_user: "{{ www_user }}"
 
-    # - role: node
-#      become: yes
-#      become_user: root
+    - role: node
+      become: yes
+      become_user: "{{ www_user }}"
 
     - role: www_setup
       become: yes

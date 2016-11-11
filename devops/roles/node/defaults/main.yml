@@ -1,0 +1,2 @@
+---
+nodeenv_path: "{{ envs_path }}/{{ application_name }}-node"
