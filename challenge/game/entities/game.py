@@ -1,41 +1,42 @@
-class Game(object):
+from dharma.data import Entity, Policy, instance, integer, string, tupl
+from typing import Dict, List, NewType, Tuple
 
-    def __init__(self, hash, players, policy, state=None):
-        """
-        Params:
-            hash - hash. The natural PK.
-            players - tuple of user hashes. The position of the hash describes
-                which Snake the player controls.
-            policy - a bunch of strategies determinating flow of the game:
-                a GamePolicy instance.
-            state - current state of the game: a GameState instance.
-        """
-        self.hash = hash
-        self.players = players
-        self.policy = policy
-        self.state = state
+from .board import Board, Order, Result
+
+
+PlayerHash = NewType('Hash', str)
+
+
+class Game(Entity):
+
+    id = ('hash',)
+    hash = string(doc="a natural PK")
+    players = tupl(PlayerHash, doc=(
+        "a tuple of player hashes; the position of the hash describes which "
+        "Snake the player controls."
+    ))
+    policy = instance(Policy, doc="a bunch of strategies determinating flow of the game")
+    state = instance(GameState, null=True, doc=(
+        "current state of the game; null iff it hasn't been started at all"
+    ))
+    result = instance(Result, null=True, doc="a result of the game iff it has been determined")
 
     @property
-    def turn(self):
+    def turn(self) -> int:
         return self.state.turn if self.state else None
 
-    def compute_orders(self, orders):
-        """
-        Params:
-            orders - a dict of {user_hash: Order instance}
-        """
+    def compute_orders(self, orders: Dict[PlayerHash, Order]) -> None:
         assert self.state, "Current state of the game hasn't been provided"
         # map orders from players to snakes
-        mapped_orders = [orders[player] for player in players]
+        mapped_orders = [orders[player] for player in self.players]  # type: List[Order]
         # compute next state of the game
-        self.previous_state = self.state  # TODO needed?
-        self.state = self.state.compute_next(orders)
+        self.state = self.state.compute_next(mapped_orders)
         # ... and check iff the result has come
         if self.state.result:
             self.result = self.state.result
 
 
-class GameState(object):
+class GameState(Entity):
     """
     Describes the state of a given game in a particular turn.
 
@@ -44,45 +45,31 @@ class GameState(object):
     Pair of the (game, turn) values present a natural PK of
     the GameState.
     """
+    id = ('game', 'turn')
+    game = instance(Game, immutable=True, doc="an instance which is owner of this game")
+    turn = integer(min_value=0, immutable=True)
+    board = instance(Board, immutable=True)
 
-    def __init__(self, game, turn, map):
-        """
-        Params:
-            game - a Game instsance which is owner of this GameState.
-            turn - turn number.
-            map - a Map instance.
-        """
-        super(GameState, self).__setattr__('game', game)
-        super(GameState, self).__setattr__('turn', turn)
-        super(GameState, self).__setattr__('map', map)
-
-    def __setattr__(self, *args):
-        raise TypeError("You try to change GameState, which is immutable")
-    __delattr__ = __setattr__
-
-    def compute_next(self, orders):
+    def compute_next(self, orders: List[Order]) -> 'GameState':
         """
         Computes next state of the game, using given orders.
 
-        Params:
-            orders - a dict of {player_hash: Order instance}
         Returns:
             a new instance of GameState (not necessary valid) after executing
             the orders.
         """
-        # TODO mutable/immutable board?
-        return GameState(game, turn+1, self.map.compute_orders(orders))
+        return GameState(self.game, self.turn + 1, self.board.compute_orders(orders))
 
-    def get_result(self, result_policy):
-        """ My map declares if there is the result of the game """
-        return self.map.result
+    def get_result(self) -> Result:
+        """ My board declares if there is the result of the game """
+        return self.board.result
 
-    def is_valid(self):
-        """ GameState is valid iff map seems not to have conflicts. """
-        return self.map.is_valid()
-        # TODO
+    def is_valid(self) -> bool:
+        """ GameState is valid iff board seems not to have conflicts. """
+        return self.board.is_valid()
+        # TODO checking ie. time exceeded which is not a function of the board
 
-    def is_valid_successor(self, other):
+    def is_valid_successor(self, other: 'GameState') -> bool:
         """
         Validates if the 'other' GameState is valid successor for this state.
         """
@@ -90,5 +77,6 @@ class GameState(object):
 
 
 class GameHistory(object):
-    # list of GameStates
-    sequence = None
+    """
+    Represents history of the Game. Implemented by a sequence of GameStates. TBDL
+    """

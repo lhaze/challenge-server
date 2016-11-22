@@ -49,3 +49,15 @@ class Board(object):
         wheather snake hasn't moved across board's borders.
         """
         self.policy.check_snake(self.size, snake)
+
+
+class Order(object):
+    """
+    Abstract ancestor of all 'order' classes. TBDL
+    """
+
+
+class Result(object):
+    """
+    Abstract ancestor of all 'result' classes. TBDL
+    """
