@@ -4,15 +4,11 @@ class Board(object):
     possible obstacles on it.
     """
 
-    def __init__(self, policy, snakes, food):
+    def __init__(self, policy, size, snakes, food):
         self.policy = policy
+        self.size = size
         self.snakes = snakes
         self.food = food
-
-    @property
-    def size(self):
-        """ Returns size of the board: a 2-tuple of positive ints """
-        return self.policy.size
 
     def compute_orders(self, orders):
         """
@@ -34,21 +30,16 @@ class Board(object):
 
     def is_valid(self):
         """
-        True iff map is in a valid state, which means that all snakes are valid
-        and there's no clash between them, objects and walls.
+        Checks whether board state is valid: policy.validation.
         """
-        snakes_are_valid = all(snake.is_valid() for snake in self.snakes)
-        snakes_coherent_with_board = all(
-            self.is_coherent_with_snake(snake) for snake in self.snakes)
-        clashes = Snake.snake_clash(self.snakes)
-        return snakes_are_valid and snakes_coherent_with_board and not clashes
+        return self.policy.validate_board(self)
 
     def is_coherent_with_snake(self, snake):
         """
         True iff a given snake is coherent with the board. For now, it checks
         wheather snake hasn't moved across board's borders.
         """
-        self.policy.check_snake(self.size, snake)
+        self.policy.check_snake(self, snake)
 
 
 class Order(object):

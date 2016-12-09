@@ -1,4 +1,4 @@
-from dharma.data import Policy, PolicySerializer
+from dharma.domain.policy import Policy, PolicySerializer
 
 from . import strategies
 from .entities import Board, Snake, Tile

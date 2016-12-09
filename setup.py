@@ -16,4 +16,7 @@ setup(
     author='lhaze',
     author_email='lhaze@lhaze.name',
     package_dir={'': 'challenge'},
+    requires=[
+        'dharma'
+    ]
 )

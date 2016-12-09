@@ -1,11 +1,11 @@
-from dharma.compat import SqlAlchemyRepo
+from dharma.compat.db import RedisRepo
 from dharma.data import EntitySerializer, PolicySerializer
 
 from . import entities, strategies
 
 
-game_serializer = EntitySerializer(entities.Game)
-game_repo = SqlAlchemyRepo(serializer=game_serializer, engine_config={})
+flow_serializer = EntitySerializer(entities.Flow)
+flow_repo = RedisRepo(serializer=flow_serializer, engine_config={})
 
 game_policy_serializer = PolicySerializer(
     board=strategies.board_constructors,
